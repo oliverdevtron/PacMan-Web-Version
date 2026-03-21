@@ -1,0 +1,50 @@
+# PAC-MAN Arcade Edition - .htaccess
+# ====================================
+# Platzieren in: /var/www/pacman/.htaccess
+
+# ── Kompression ──────────────────────────────────
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ── Browser-Caching ──────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 hour"
+    ExpiresByType text/html "access plus 1 hour"
+    ExpiresByType image/png "access plus 30 days"
+    ExpiresByType image/jpeg "access plus 30 days"
+    ExpiresByType image/gif "access plus 30 days"
+    ExpiresByType image/svg+xml "access plus 7 days"
+    ExpiresByType text/css "access plus 7 days"
+    ExpiresByType application/javascript "access plus 7 days"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+</IfModule>
+
+# ── Security Headers ─────────────────────────────
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ── Verzeichnis-Listing deaktivieren ─────────────
+Options -Indexes
+
+# ── Standard-Dokument ────────────────────────────
+DirectoryIndex index.html
+
+# ── Fehlerseiten ─────────────────────────────────
+ErrorDocument 404 /index.html
+
+# ── MIME-Typen ───────────────────────────────────
+<IfModule mod_mime.c>
+    AddType text/html .html
+    AddType image/png .png
+    AddType application/javascript .js
+    AddType text/css .css
+</IfModule>

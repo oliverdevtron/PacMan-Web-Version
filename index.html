@@ -18,14 +18,14 @@
 <meta property="og:see_also" content="https://www.perplexity.ai/computer">
 <link rel="author" href="https://www.perplexity.ai/computer">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>PAC-MAN Arcade</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#0a0a12;font-family:'Inter',sans-serif;color:#e8e8ec}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0a12;font-family:'Inter',sans-serif;color:#e8e8ec;touch-action:none}
 #gameContainer{position:relative;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center}
 canvas{display:block;image-rendering:auto}
 #titleScreen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;background:#0a0a12}
@@ -39,24 +39,68 @@ canvas{display:block;image-rendering:auto}
 .diff-btn{font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.1vw,11px);padding:10px 20px;border:2px solid #0066ff;background:rgba(0,102,255,0.1);color:#e8e8ec;cursor:pointer;transition:all 0.2s;text-shadow:0 0 4px rgba(255,255,255,0.3)}
 .diff-btn:hover,.diff-btn.selected{background:rgba(0,102,255,0.4);box-shadow:0 0 15px rgba(0,102,255,0.5);color:#fff}
 .diff-btn.selected{border-color:#00FFFF;box-shadow:0 0 15px rgba(0,255,255,0.5)}
-.start-prompt{font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.2vw,12px);color:#fff;margin-top:28px;animation:blink 1.2s infinite}
+.start-prompt{font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.2vw,12px);color:#fff;margin-top:28px;animation:blink 1.2s infinite;text-align:center;line-height:1.8}
 .controls-info{font-family:'Inter',sans-serif;font-size:clamp(10px,1vw,13px);color:#8888a0;margin-top:20px;text-align:center;line-height:1.6}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-#pauseOverlay{position:absolute;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:15;flex-direction:column;gap:20px}
+#pauseOverlay{position:absolute;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:15;flex-direction:column;gap:16px}
 #pauseOverlay.active{display:flex}
 .pause-title{font-family:'Press Start 2P',monospace;font-size:24px;color:#FFE000;text-shadow:0 0 15px rgba(255,224,0,0.6)}
 .pause-btn{font-family:'Press Start 2P',monospace;font-size:12px;padding:12px 24px;border:2px solid #0066ff;background:rgba(0,102,255,0.15);color:#e8e8ec;cursor:pointer;transition:all 0.2s}
 .pause-btn:hover{background:rgba(0,102,255,0.4);box-shadow:0 0 15px rgba(0,102,255,0.5)}
-#gameOverScreen{position:absolute;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:18;flex-direction:column;gap:16px}
+.pause-shortcuts{font-family:'Press Start 2P',monospace;font-size:8px;color:#8888a0;text-align:center;line-height:2.2;margin-top:8px}
+.pause-shortcuts span{color:#00FFFF}
+.pause-fact{font-family:'Inter',sans-serif;font-size:13px;color:#FFE000;text-align:center;max-width:340px;line-height:1.5;margin-top:6px;display:none;animation:fadeInUp 0.3s ease}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+#gameOverScreen{position:absolute;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:18;flex-direction:column;gap:12px}
 #gameOverScreen.active{display:flex}
 .go-title{font-family:'Press Start 2P',monospace;font-size:clamp(20px,3vw,36px);color:#FF0000;text-shadow:0 0 20px rgba(255,0,0,0.6)}
+.go-new-high{font-family:'Press Start 2P',monospace;font-size:clamp(10px,1.5vw,16px);color:#FFE000;text-shadow:0 0 15px rgba(255,224,0,0.6);animation:blink 0.8s infinite;display:none}
 .go-score{font-family:'Press Start 2P',monospace;font-size:clamp(10px,1.5vw,16px);color:#FFE000}
 .go-high{font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.2vw,12px);color:#00FFFF}
+.go-stats{font-family:'Press Start 2P',monospace;font-size:clamp(7px,0.9vw,9px);color:#b0b0c8;text-align:center;line-height:2.4;margin-top:4px}
+.go-stats span{color:#FFB8FF}
 #soundToggle{position:absolute;top:10px;right:10px;z-index:25;font-family:'Press Start 2P',monospace;font-size:9px;padding:8px 14px;border:1px solid #0066ff;background:rgba(0,102,255,0.15);color:#e8e8ec;cursor:pointer;letter-spacing:1px;white-space:nowrap}
 #soundToggle:hover{background:rgba(0,102,255,0.3)}
 footer{position:absolute;bottom:6px;left:0;right:0;text-align:center;z-index:30;font-size:11px}
 footer a{color:#8888a0;text-decoration:none;font-family:'Inter',sans-serif}
 footer a:hover{color:#00FFFF}
+
+/* Ghost personality tooltips on title screen */
+.ghost-info-row{display:flex;gap:18px;margin-top:10px;flex-wrap:wrap;justify-content:center}
+.ghost-chip{position:relative;cursor:pointer;padding:6px 10px;border-radius:4px;transition:background 0.2s}
+.ghost-chip:hover{background:rgba(255,255,255,0.08)}
+.ghost-chip .ghost-dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:4px;vertical-align:middle;box-shadow:0 0 8px currentColor}
+.ghost-chip .ghost-label{font-family:'Press Start 2P',monospace;font-size:7px;color:#ccc;vertical-align:middle}
+.ghost-chip .ghost-tooltip{position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:rgba(0,0,20,0.95);border:1px solid #0066ff;padding:8px 12px;border-radius:6px;font-family:'Inter',sans-serif;font-size:11px;color:#e0e0ff;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s;z-index:40;text-align:center;line-height:1.5}
+.ghost-chip:hover .ghost-tooltip{opacity:1}
+
+/* Mobile D-pad */
+#dpad{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);z-index:22;display:none;opacity:0.55;touch-action:none}
+#dpad button{position:absolute;width:52px;height:52px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);font-size:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+#dpad button:active{background:rgba(255,255,255,0.25)}
+#dpad .dpad-up{left:52px;top:0}
+#dpad .dpad-down{left:52px;top:104px}
+#dpad .dpad-left{left:0;top:52px}
+#dpad .dpad-right{left:104px;top:52px}
+
+/* Konami secret text */
+.secret-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Press Start 2P',monospace;font-size:clamp(14px,2.5vw,24px);color:#FF00FF;text-shadow:0 0 20px #FF00FF,0 0 40px #FF00FF;z-index:50;animation:secretPulse 2s ease-out forwards;pointer-events:none;white-space:nowrap}
+@keyframes secretPulse{0%{opacity:0;transform:translate(-50%,-50%) scale(0.5)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}40%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}
+
+/* 1UP flash */
+.oneup-flash{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);font-family:'Press Start 2P',monospace;font-size:clamp(20px,4vw,40px);color:#00FF00;text-shadow:0 0 20px #00FF00,0 0 40px #00FF00;z-index:45;animation:oneupAnim 1.5s ease-out forwards;pointer-events:none}
+@keyframes oneupAnim{0%{opacity:0;transform:translate(-50%,-50%) scale(0.3)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.3)}30%{transform:translate(-50%,-50%) scale(1)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) translateY(-40px)}}
+
+/* Level transition text */
+.level-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Press Start 2P',monospace;font-size:clamp(18px,3vw,32px);color:#FFE000;text-shadow:0 0 20px rgba(255,224,0,0.8),0 0 40px rgba(255,224,0,0.4);z-index:45;animation:levelZoom 2s ease-out forwards;pointer-events:none}
+@keyframes levelZoom{0%{opacity:0;transform:translate(-50%,-50%) scale(0.2)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}30%{transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(2)}}
+
+/* Combo text */
+.combo-text{position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);font-family:'Press Start 2P',monospace;font-size:clamp(16px,3vw,28px);text-shadow:0 0 20px currentColor;z-index:44;animation:comboAnim 1.2s ease-out forwards;pointer-events:none}
+@keyframes comboAnim{0%{opacity:0;transform:translate(-50%,-50%) scale(0.5) rotate(-5deg)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.3) rotate(3deg)}30%{transform:translate(-50%,-50%) scale(1) rotate(0)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(0.8) translateY(-30px)}}
+
+/* Speed timer */
+#speedTimer{position:absolute;top:10px;left:10px;z-index:25;font-family:'Press Start 2P',monospace;font-size:9px;color:#00FF88;text-shadow:0 0 6px rgba(0,255,136,0.5);display:none;pointer-events:none}
 </style>
 </head>
 <body>
@@ -67,29 +111,65 @@ footer a:hover{color:#00FFFF}
     <div class="title-content">
       <div class="game-title">PAC-MAN</div>
       <div class="subtitle">ARCADE EDITION</div>
+      <div class="ghost-info-row">
+        <div class="ghost-chip">
+          <span class="ghost-dot" style="background:#FF0000;color:#FF0000"></span>
+          <span class="ghost-label">BLINKY</span>
+          <div class="ghost-tooltip"><strong>BLINKY — The Shadow</strong><br>Aggressive chaser, always on your tail!</div>
+        </div>
+        <div class="ghost-chip">
+          <span class="ghost-dot" style="background:#FFB8FF;color:#FFB8FF"></span>
+          <span class="ghost-label">PINKY</span>
+          <div class="ghost-tooltip"><strong>PINKY — The Speedy</strong><br>Tries to ambush you from ahead!</div>
+        </div>
+        <div class="ghost-chip">
+          <span class="ghost-dot" style="background:#00FFFF;color:#00FFFF"></span>
+          <span class="ghost-label">INKY</span>
+          <div class="ghost-tooltip"><strong>INKY — The Bashful</strong><br>Unpredictable, uses Blinky's position too!</div>
+        </div>
+        <div class="ghost-chip">
+          <span class="ghost-dot" style="background:#FFB852;color:#FFB852"></span>
+          <span class="ghost-label">CLYDE</span>
+          <div class="ghost-tooltip"><strong>CLYDE — The Pokey</strong><br>Chases you then runs away when close!</div>
+        </div>
+      </div>
       <div class="difficulty-select">
         <div class="difficulty-label">SELECT DIFFICULTY</div>
         <div class="diff-buttons">
-          <button class="diff-btn" data-diff="easy">EASY</button>
-          <button class="diff-btn selected" data-diff="normal">NORMAL</button>
+          <button class="diff-btn selected" data-diff="easy">EASY</button>
+          <button class="diff-btn" data-diff="normal">NORMAL</button>
           <button class="diff-btn" data-diff="hard">HARD</button>
         </div>
       </div>
-      <div class="start-prompt">PRESS SPACE TO START</div>
-      <div class="controls-info">Arrow Keys / WASD to move &bull; Space to start/pause &bull; ESC to pause</div>
+      <div class="start-prompt">PRESS SPACE TO START<br><span style="font-size:0.75em;opacity:0.7">or CLICK to Start</span></div>
+      <div class="controls-info">Arrow Keys / WASD to move &bull; Space to start/pause &bull; ESC to pause<br>T = Speed Timer &bull; P = Pause</div>
     </div>
   </div>
   <div id="pauseOverlay">
     <div class="pause-title">PAUSED</div>
     <button class="pause-btn" id="resumeBtn">RESUME</button>
     <button class="pause-btn" id="quitBtn">QUIT</button>
+    <div class="pause-shortcuts">
+      <span>SPACE/ESC/P</span> Pause &bull; <span>WASD/ARROWS</span> Move<br>
+      <span>T</span> Speed Timer &bull; <span>M</span> Mute &bull; <span>?</span> Fun Fact
+    </div>
+    <div class="pause-fact" id="pauseFact"></div>
   </div>
   <div id="gameOverScreen">
     <div class="go-title">GAME OVER</div>
+    <div class="go-new-high" id="goNewHigh">★ NEW HIGH SCORE! ★</div>
     <div class="go-score" id="goScore"></div>
     <div class="go-high" id="goHigh"></div>
-    <div class="start-prompt">PRESS SPACE TO PLAY AGAIN</div>
+    <div class="go-stats" id="goStats"></div>
+    <div class="start-prompt">PRESS SPACE TO PLAY AGAIN<br><span style="font-size:0.75em;opacity:0.7">or CLICK</span></div>
   </div>
+  <div id="dpad">
+    <button class="dpad-up" data-dir="up">▲</button>
+    <button class="dpad-down" data-dir="down">▼</button>
+    <button class="dpad-left" data-dir="left">◀</button>
+    <button class="dpad-right" data-dir="right">▶</button>
+  </div>
+  <div id="speedTimer"></div>
   <button id="soundToggle">SOUND: ON</button>
 </div>
 <footer>
@@ -99,7 +179,7 @@ footer a:hover{color:#00FFFF}
 <script>
 "use strict";
 /* ============================================================
-   PAC-MAN ARCADE - Complete High-End Browser Game
+   PAC-MAN ARCADE - Complete High-End Browser Game (Improved)
    ============================================================ */
 
 // ─── CONSTANTS & CONFIG ─────────────────────────────────────
@@ -122,40 +202,38 @@ const GD= 5;  // ghost door
 const T = 6;  // tunnel (slow zone)
 
 // Authentic 28x31 Pac-Man maze
-// 0=wall, 1=empty, 2=dot, 3=power, 4=ghost house, 5=ghost door, 6=tunnel
 const MAZE_TEMPLATE = [
-// 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27
-  [W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W], // 0
-  [W, D, D, D, D, D, D, D, D, D, D, D, D, W, W, D, D, D, D, D, D, D, D, D, D, D, D, W], // 1
-  [W, D, W, W, W, W, D, W, W, W, W, W, D, W, W, D, W, W, W, W, W, D, W, W, W, W, D, W], // 2
-  [W, P, W, W, W, W, D, W, W, W, W, W, D, W, W, D, W, W, W, W, W, D, W, W, W, W, P, W], // 3
-  [W, D, W, W, W, W, D, W, W, W, W, W, D, W, W, D, W, W, W, W, W, D, W, W, W, W, D, W], // 4
-  [W, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, W], // 5
-  [W, D, W, W, W, W, D, W, W, D, W, W, W, W, W, W, W, W, D, W, W, D, W, W, W, W, D, W], // 6
-  [W, D, W, W, W, W, D, W, W, D, W, W, W, W, W, W, W, W, D, W, W, D, W, W, W, W, D, W], // 7
-  [W, D, D, D, D, D, D, W, W, D, D, D, D, W, W, D, D, D, D, W, W, D, D, D, D, D, D, W], // 8
-  [W, W, W, W, W, W, D, W, W, W, W, W, E, W, W, E, W, W, W, W, W, D, W, W, W, W, W, W], // 9
-  [W, W, W, W, W, W, D, W, W, W, W, W, E, W, W, E, W, W, W, W, W, D, W, W, W, W, W, W], //10
-  [W, W, W, W, W, W, D, W, W, E, E, E, E, E, E, E, E, E, E, W, W, D, W, W, W, W, W, W], //11
-  [W, W, W, W, W, W, D, W, W, E, W, W, W,GD,GD, W, W, W, E, W, W, D, W, W, W, W, W, W], //12
-  [W, W, W, W, W, W, D, E, E, E, W, G, G, G, G, G, G, W, E, E, E, D, W, W, W, W, W, W], //13
-  [T, E, E, E, E, E, D, W, W, E, W, G, G, G, G, G, G, W, E, W, W, D, E, E, E, E, E, T], //14
-  [W, W, W, W, W, W, D, W, W, E, W, G, G, G, G, G, G, W, E, W, W, D, W, W, W, W, W, W], //15
-  [W, W, W, W, W, W, D, W, W, E, W, W, W, W, W, W, W, W, E, W, W, D, W, W, W, W, W, W], //16
-  [W, W, W, W, W, W, D, W, W, E, E, E, E, E, E, E, E, E, E, W, W, D, W, W, W, W, W, W], //17
-  [W, W, W, W, W, W, D, W, W, E, W, W, W, W, W, W, W, W, E, W, W, D, W, W, W, W, W, W], //18
-  [W, W, W, W, W, W, D, W, W, E, W, W, W, W, W, W, W, W, E, W, W, D, W, W, W, W, W, W], //19
-  [W, D, D, D, D, D, D, D, D, D, D, D, D, W, W, D, D, D, D, D, D, D, D, D, D, D, D, W], //20
-  [W, D, W, W, W, W, D, W, W, W, W, W, D, W, W, D, W, W, W, W, W, D, W, W, W, W, D, W], //21
-  [W, D, W, W, W, W, D, W, W, W, W, W, D, W, W, D, W, W, W, W, W, D, W, W, W, W, D, W], //22
-  [W, P, D, D, W, W, D, D, D, D, D, D, D, E, E, D, D, D, D, D, D, D, W, W, D, D, P, W], //23
-  [W, W, W, D, W, W, D, W, W, D, W, W, W, W, W, W, W, W, D, W, W, D, W, W, D, W, W, W], //24
-  [W, W, W, D, W, W, D, W, W, D, W, W, W, W, W, W, W, W, D, W, W, D, W, W, D, W, W, W], //25
-  [W, D, D, D, D, D, D, W, W, D, D, D, D, W, W, D, D, D, D, W, W, D, D, D, D, D, D, W], //26
-  [W, D, W, W, W, W, W, W, W, W, W, W, D, W, W, D, W, W, W, W, W, W, W, W, W, W, D, W], //27
-  [W, D, W, W, W, W, W, W, W, W, W, W, D, W, W, D, W, W, W, W, W, W, W, W, W, W, D, W], //28
-  [W, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, W], //29
-  [W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W], //30
+  [W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W],
+  [W, D, D, D, D, D, D, D, D, D, D, D, D, W, W, D, D, D, D, D, D, D, D, D, D, D, D, W],
+  [W, D, W, W, W, W, D, W, W, W, W, W, D, W, W, D, W, W, W, W, W, D, W, W, W, W, D, W],
+  [W, P, W, W, W, W, D, W, W, W, W, W, D, W, W, D, W, W, W, W, W, D, W, W, W, W, P, W],
+  [W, D, W, W, W, W, D, W, W, W, W, W, D, W, W, D, W, W, W, W, W, D, W, W, W, W, D, W],
+  [W, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, W],
+  [W, D, W, W, W, W, D, W, W, D, W, W, W, W, W, W, W, W, D, W, W, D, W, W, W, W, D, W],
+  [W, D, W, W, W, W, D, W, W, D, W, W, W, W, W, W, W, W, D, W, W, D, W, W, W, W, D, W],
+  [W, D, D, D, D, D, D, W, W, D, D, D, D, W, W, D, D, D, D, W, W, D, D, D, D, D, D, W],
+  [W, W, W, W, W, W, D, W, W, W, W, W, E, W, W, E, W, W, W, W, W, D, W, W, W, W, W, W],
+  [W, W, W, W, W, W, D, W, W, W, W, W, E, W, W, E, W, W, W, W, W, D, W, W, W, W, W, W],
+  [W, W, W, W, W, W, D, W, W, E, E, E, E, E, E, E, E, E, E, W, W, D, W, W, W, W, W, W],
+  [W, W, W, W, W, W, D, W, W, E, W, W, W,GD,GD, W, W, W, E, W, W, D, W, W, W, W, W, W],
+  [W, W, W, W, W, W, D, E, E, E, W, G, G, G, G, G, G, W, E, E, E, D, W, W, W, W, W, W],
+  [T, E, E, E, E, E, D, W, W, E, W, G, G, G, G, G, G, W, E, W, W, D, E, E, E, E, E, T],
+  [W, W, W, W, W, W, D, W, W, E, W, G, G, G, G, G, G, W, E, W, W, D, W, W, W, W, W, W],
+  [W, W, W, W, W, W, D, W, W, E, W, W, W, W, W, W, W, W, E, W, W, D, W, W, W, W, W, W],
+  [W, W, W, W, W, W, D, W, W, E, E, E, E, E, E, E, E, E, E, W, W, D, W, W, W, W, W, W],
+  [W, W, W, W, W, W, D, W, W, E, W, W, W, W, W, W, W, W, E, W, W, D, W, W, W, W, W, W],
+  [W, W, W, W, W, W, D, W, W, E, W, W, W, W, W, W, W, W, E, W, W, D, W, W, W, W, W, W],
+  [W, D, D, D, D, D, D, D, D, D, D, D, D, W, W, D, D, D, D, D, D, D, D, D, D, D, D, W],
+  [W, D, W, W, W, W, D, W, W, W, W, W, D, W, W, D, W, W, W, W, W, D, W, W, W, W, D, W],
+  [W, D, W, W, W, W, D, W, W, W, W, W, D, W, W, D, W, W, W, W, W, D, W, W, W, W, D, W],
+  [W, P, D, D, W, W, D, D, D, D, D, D, D, E, E, D, D, D, D, D, D, D, W, W, D, D, P, W],
+  [W, W, W, D, W, W, D, W, W, D, W, W, W, W, W, W, W, W, D, W, W, D, W, W, D, W, W, W],
+  [W, W, W, D, W, W, D, W, W, D, W, W, W, W, W, W, W, W, D, W, W, D, W, W, D, W, W, W],
+  [W, D, D, D, D, D, D, W, W, D, D, D, D, W, W, D, D, D, D, W, W, D, D, D, D, D, D, W],
+  [W, D, W, W, W, W, W, W, W, W, W, W, D, W, W, D, W, W, W, W, W, W, W, W, W, W, D, W],
+  [W, D, W, W, W, W, W, W, W, W, W, W, D, W, W, D, W, W, W, W, W, W, W, W, W, W, D, W],
+  [W, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, W],
+  [W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W],
 ];
 
 // Fruit table
@@ -193,6 +271,37 @@ const SPEED_TABLE = {
 // Fright durations per level
 const FRIGHT_TIMES = [6,5,4,3,2,5,5,5,1,1,1,3,3,3,1,1,0,0,0,0,0];
 
+// Maze color themes per level group
+const MAZE_THEMES = [
+  {primary:'#1a7aff', glow:'#0066ff', dim:'rgba(0,102,255,0.3)', shadow:'#0044cc', wallFill:'rgba(0,20,60,0.35)'},   // Levels 1-4: blue
+  {primary:'#bb55ff', glow:'#9933ff', dim:'rgba(153,51,255,0.3)', shadow:'#6622aa', wallFill:'rgba(40,0,60,0.35)'},    // Levels 5-8: purple
+  {primary:'#22dd88', glow:'#00cc66', dim:'rgba(0,204,102,0.3)', shadow:'#009944', wallFill:'rgba(0,40,20,0.35)'},     // Levels 9-12: green
+  {primary:'#ff6633', glow:'#ff3300', dim:'rgba(255,51,0,0.3)', shadow:'#cc2200', wallFill:'rgba(60,15,0,0.35)'},      // Levels 13-16: red/orange
+  {primary:'#ffcc00', glow:'#ffaa00', dim:'rgba(255,204,0,0.3)', shadow:'#cc8800', wallFill:'rgba(60,40,0,0.35)'},     // Levels 17+: gold
+];
+
+// Fun facts for ? key
+const FUN_FACTS = [
+  "The original Pac-Man was designed by Toru Iwatani in 1980!",
+  "Pac-Man was inspired by a pizza with a slice removed.",
+  "Each ghost has a unique AI personality and chasing strategy!",
+  "The original arcade game had 256 levels before the famous kill screen.",
+  "Pac-Man's Japanese name is 'Puck Man', from 'paku paku' (munching).",
+  "Blinky is the only ghost that speeds up as you eat more dots!",
+  "The four ghosts' English nicknames are Shadow, Speedy, Bashful, and Pokey.",
+  "A perfect Pac-Man game score is 3,333,360 points.",
+  "Pac-Man was the first game to have power-ups (power pellets)!",
+  "Clyde targets Pac-Man when far away, but runs home when close.",
+];
+
+function getMazeTheme(lvl) {
+  if (lvl <= 4) return MAZE_THEMES[0];
+  if (lvl <= 8) return MAZE_THEMES[1];
+  if (lvl <= 12) return MAZE_THEMES[2];
+  if (lvl <= 16) return MAZE_THEMES[3];
+  return MAZE_THEMES[4];
+}
+
 function getSpeedForLevel(lvl) {
   if (lvl >= 21) return SPEED_TABLE[21];
   if (lvl >= 5) return SPEED_TABLE[5];
@@ -227,8 +336,8 @@ let score = 0;
 let highScore = 0;
 let lives = 3;
 let level = 1;
-let difficulty = 'normal';
-let gameState = 'title'; // title, ready, playing, dying, levelComplete, gameOver
+let difficulty = 'easy'; // Default to easy
+let gameState = 'title'; // title, ready, playing, dying, levelComplete, levelTransition, gameOver
 let stateTimer = 0;
 let ghostEatCombo = 0;
 let extraLifeGiven = false;
@@ -237,6 +346,14 @@ let fruitTimer = 0;
 let fruitSpawned = 0;
 let soundEnabled = true;
 let paused = false;
+
+// Stats tracking
+let statsDotsEaten = 0;
+let statsGhostsEaten = 0;
+let statsLevelsCompleted = 0;
+let statsTimeStarted = 0;
+let statsFruitCollected = 0;
+let statsMaxCombo = 0;
 
 // Mode management
 let modeIndex = 0;
@@ -251,6 +368,7 @@ let pacman, ghosts;
 // Particles
 const particles = [];
 const scorePopups = [];
+const ambientParticles = [];
 
 // Screen shake
 let shakeTimer = 0;
@@ -259,6 +377,25 @@ let shakeIntensity = 0;
 // Level complete animation
 let levelFlashTimer = 0;
 let levelFlashCount = 0;
+
+// Animated score display
+let displayScore = 0;
+
+// Speed run timer
+let speedTimerVisible = false;
+let speedTimerTotal = 0;
+let speedTimerLevel = 0;
+
+// Konami code state
+let konamiActive = false;
+let konamiSeq = [];
+const KONAMI_CODE = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','KeyB','KeyA'];
+
+// Rainbow mode (from Konami)
+let rainbowHue = 0;
+
+// Frightened screen tint
+let frightTintAlpha = 0;
 
 // ─── AUDIO ENGINE ───────────────────────────────────────────
 let audioCtx = null;
@@ -406,6 +543,20 @@ function playIntro() {
   });
 }
 
+function playKonamiSound() {
+  if (!audioCtx || !soundEnabled) return;
+  const t = audioCtx.currentTime;
+  [523,659,784,1047,1319,1568].forEach((f,i)=>{
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type='square'; osc.frequency.value=f;
+    gain.gain.setValueAtTime(0.1,t+i*0.08);
+    gain.gain.exponentialRampToValueAtTime(0.001,t+i*0.08+0.12);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(t+i*0.08);osc.stop(t+i*0.08+0.13);
+  });
+}
+
 function startSiren() {
   if (!audioCtx || !soundEnabled || sirenOsc) return;
   sirenOsc = audioCtx.createOscillator();
@@ -466,7 +617,6 @@ function resetMaze() {
 
 function isWall(col, row) {
   if (row < 0 || row >= ROWS) return true;
-  // Tunnel wrap
   if (col < 0 || col >= COLS) return false;
   const t = maze[row][col];
   return t === W;
@@ -479,7 +629,7 @@ function isGhostHouse(col, row) {
 
 function canMove(col, row, isGhost, isEyes) {
   if (row < 0 || row >= ROWS) return true;
-  if (col < 0 || col >= COLS) return true; // tunnel
+  if (col < 0 || col >= COLS) return true;
   const t = maze[row][col];
   if (t === W) return false;
   if (t === GD) return isGhost;
@@ -506,12 +656,12 @@ const DIR = {
   none:  {x:0, y:0}
 };
 const OPPOSITE = {left:'right',right:'left',up:'down',down:'up',none:'none'};
-const DIR_ORDER = ['up','left','down','right']; // priority for ghost AI
+const DIR_ORDER = ['up','left','down','right'];
 
 // ─── PAC-MAN ────────────────────────────────────────────────
 function createPacman() {
   return {
-    col: 14, row: 23, // starting position (between 13 and 14)
+    col: 14, row: 23,
     x: 14 * TILE, y: 23 * TILE,
     dir: 'left',
     nextDir: 'left',
@@ -571,11 +721,39 @@ function createGhosts() {
   ];
 }
 
-// ─── DIFFICULTY MODIFIERS ───────────────────────────────────
+// ─── DIFFICULTY MODIFIERS (HEAVILY REBALANCED) ──────────────
 function getDiffMod() {
-  if (difficulty === 'easy') return {ghostSpeed:0.85, frightMult:1.5, elroyMult:0.7, pacSpeed:1.0};
-  if (difficulty === 'hard') return {ghostSpeed:1.15, frightMult:0.6, elroyMult:1.5, pacSpeed:1.0};
-  return {ghostSpeed:1.0, frightMult:1.0, elroyMult:1.0, pacSpeed:1.0};
+  if (difficulty === 'easy') return {
+    ghostSpeed: 0.60,
+    pacSpeed: 1.12,
+    frightMult: 2.5,
+    elroyMult: 0.4,
+    startLives: 5,
+    extraLifeScore: 5000,
+    ghostDumbness: 0.20,
+    collisionRadius: 0.55,
+  };
+  if (difficulty === 'hard') return {
+    ghostSpeed: 1.08,
+    pacSpeed: 1.0,
+    frightMult: 0.7,
+    elroyMult: 1.5,
+    startLives: 3,
+    extraLifeScore: 10000,
+    ghostDumbness: 0,
+    collisionRadius: 0.8,
+  };
+  // normal
+  return {
+    ghostSpeed: 0.88,
+    pacSpeed: 1.0,
+    frightMult: 1.4,
+    elroyMult: 1.0,
+    startLives: 4,
+    extraLifeScore: 7500,
+    ghostDumbness: 0.08,
+    collisionRadius: 0.72,
+  };
 }
 
 // ─── INPUT ──────────────────────────────────────────────────
@@ -586,7 +764,13 @@ document.addEventListener('keydown', e => {
   keys[e.code] = true;
   if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
   
+  // Konami code detection on title screen
   if (gameState === 'title') {
+    konamiSeq.push(e.code);
+    if (konamiSeq.length > KONAMI_CODE.length) konamiSeq.shift();
+    if (konamiSeq.length === KONAMI_CODE.length && konamiSeq.every((k,i)=>k===KONAMI_CODE[i])) {
+      activateKonami();
+    }
     if (e.code === 'Space') startGame();
     return;
   }
@@ -595,8 +779,27 @@ document.addEventListener('keydown', e => {
     return;
   }
   if (gameState === 'playing' || gameState === 'ready') {
-    if (e.code === 'Space' || e.code === 'Escape') togglePause();
+    if (e.code === 'Space' || e.code === 'Escape' || e.code === 'KeyP') togglePause();
   }
+  
+  // Speed timer toggle
+  if (e.code === 'KeyT') {
+    speedTimerVisible = !speedTimerVisible;
+    document.getElementById('speedTimer').style.display = speedTimerVisible ? 'block' : 'none';
+  }
+  
+  // Mute toggle
+  if (e.code === 'KeyM') {
+    soundEnabled = !soundEnabled;
+    document.getElementById('soundToggle').textContent = 'SOUND: ' + (soundEnabled ? 'ON' : 'OFF');
+    if (!soundEnabled) { stopSiren(); stopFrightSound(); }
+  }
+  
+  // Fun fact during pause
+  if ((e.key === '?' || e.code === 'Slash') && paused) {
+    showFunFact();
+  }
+  
   // Direction buffering
   if (e.code === 'ArrowLeft' || e.code === 'KeyA') pacman.nextDir = 'left';
   if (e.code === 'ArrowRight' || e.code === 'KeyD') pacman.nextDir = 'right';
@@ -605,22 +808,46 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('keyup', e => { keys[e.code] = false; });
 
-// Touch
+// Touch/click to start
+document.getElementById('titleScreen').addEventListener('click', e => {
+  if (e.target.classList.contains('diff-btn')) return;
+  if (e.target.closest('.ghost-chip')) return;
+  if (gameState === 'title') startGame();
+});
+document.getElementById('gameOverScreen').addEventListener('click', e => {
+  if (gameState === 'gameOver') resetToTitle();
+});
+
+// Touch swipe
 document.addEventListener('touchstart', e => {
-  if (gameState === 'title') { startGame(); return; }
-  if (gameState === 'gameOver') { resetToTitle(); return; }
+  if (gameState === 'title') return; // handled by click
+  if (gameState === 'gameOver') return;
   touchStartX = e.touches[0].clientX;
   touchStartY = e.touches[0].clientY;
 }, {passive:true});
 document.addEventListener('touchend', e => {
+  if (gameState !== 'playing' && gameState !== 'ready') return;
   const dx = e.changedTouches[0].clientX - touchStartX;
   const dy = e.changedTouches[0].clientY - touchStartY;
+  const dist = Math.sqrt(dx*dx+dy*dy);
+  if (dist < 10) return; // ignore taps, use dpad
   if (Math.abs(dx) > Math.abs(dy)) {
     pacman.nextDir = dx > 0 ? 'right' : 'left';
   } else {
     pacman.nextDir = dy > 0 ? 'down' : 'up';
   }
 }, {passive:true});
+
+// Mobile D-pad
+const isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1);
+if (isMobile) {
+  document.getElementById('dpad').style.display = 'block';
+}
+document.querySelectorAll('#dpad button').forEach(btn => {
+  const setDir = () => { if (pacman) pacman.nextDir = btn.dataset.dir; };
+  btn.addEventListener('touchstart', e => { e.preventDefault(); setDir(); }, {passive:false});
+  btn.addEventListener('mousedown', e => { e.preventDefault(); setDir(); });
+});
 
 // Difficulty buttons
 document.querySelectorAll('.diff-btn').forEach(btn => {
@@ -633,7 +860,7 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
 
 // Pause buttons
 document.getElementById('resumeBtn').addEventListener('click', () => togglePause());
-document.getElementById('quitBtn').addEventListener('click', () => { paused = false; document.getElementById('pauseOverlay').classList.remove('active'); resetToTitle(); });
+document.getElementById('quitBtn').addEventListener('click', () => { paused = false; document.getElementById('pauseOverlay').classList.remove('active'); document.getElementById('pauseFact').style.display='none'; resetToTitle(); });
 
 // Sound toggle
 document.getElementById('soundToggle').addEventListener('click', () => {
@@ -642,20 +869,91 @@ document.getElementById('soundToggle').addEventListener('click', () => {
   if (!soundEnabled) { stopSiren(); stopFrightSound(); }
 });
 
+// ─── KONAMI CODE ────────────────────────────────────────────
+function activateKonami() {
+  if (konamiActive) return;
+  konamiActive = true;
+  initAudio();
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  playKonamiSound();
+  
+  const el = document.createElement('div');
+  el.className = 'secret-text';
+  el.textContent = '★ SECRET MODE! ★';
+  document.getElementById('gameContainer').appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
+// ─── FUN FACTS ──────────────────────────────────────────────
+function showFunFact() {
+  const el = document.getElementById('pauseFact');
+  el.textContent = '💡 ' + FUN_FACTS[Math.floor(Math.random() * FUN_FACTS.length)];
+  el.style.display = 'block';
+  // Re-trigger animation
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = '';
+}
+
+// ─── AMBIENT PARTICLES ─────────────────────────────────────
+function initAmbientParticles() {
+  ambientParticles.length = 0;
+  for (let i = 0; i < 30; i++) {
+    ambientParticles.push({
+      x: Math.random() * CANVAS_W,
+      y: Math.random() * CANVAS_H,
+      vx: (Math.random() - 0.5) * 8,
+      vy: (Math.random() - 0.5) * 8,
+      size: 0.5 + Math.random() * 1.5,
+      alpha: 0.1 + Math.random() * 0.15,
+    });
+  }
+}
+
+function updateAmbientParticles(dt) {
+  ambientParticles.forEach(p => {
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    if (p.x < 0) p.x = CANVAS_W;
+    if (p.x > CANVAS_W) p.x = 0;
+    if (p.y < 0) p.y = CANVAS_H;
+    if (p.y > CANVAS_H) p.y = 0;
+  });
+}
+
 // ─── GAME STATE MANAGEMENT ──────────────────────────────────
 function startGame() {
   initAudio();
   if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   document.getElementById('titleScreen').style.display = 'none';
   document.getElementById('gameOverScreen').classList.remove('active');
+  
+  const mod = getDiffMod();
   score = 0;
-  lives = 3;
+  displayScore = 0;
+  lives = mod.startLives;
   level = 1;
   extraLifeGiven = false;
+  
+  // Reset stats
+  statsDotsEaten = 0;
+  statsGhostsEaten = 0;
+  statsLevelsCompleted = 0;
+  statsTimeStarted = performance.now();
+  statsFruitCollected = 0;
+  statsMaxCombo = 0;
+  speedTimerTotal = 0;
+  speedTimerLevel = 0;
+  
+  if (konamiActive) {
+    lives++; // Extra life from Konami
+  }
+  
   resetLevel();
   gameState = 'ready';
   stateTimer = 2.5;
   playIntro();
+  initAmbientParticles();
 }
 
 function resetLevel() {
@@ -674,16 +972,19 @@ function resetLevel() {
   scorePopups.length = 0;
   stopSiren();
   stopFrightSound();
+  mazeNeedsRedraw = true;
 
+  const mod = getDiffMod();
+  
   // Adjust dot limits per level
   if (level === 1) {
     ghosts[1].dotLimit = 0;
-    ghosts[2].dotLimit = 30;
-    ghosts[3].dotLimit = 60;
+    ghosts[2].dotLimit = difficulty === 'easy' ? 80 : 30;
+    ghosts[3].dotLimit = difficulty === 'easy' ? 160 : 60;
   } else if (level === 2) {
     ghosts[1].dotLimit = 0;
     ghosts[2].dotLimit = 0;
-    ghosts[3].dotLimit = 50;
+    ghosts[3].dotLimit = difficulty === 'easy' ? 80 : 50;
   } else {
     ghosts[1].dotLimit = 0;
     ghosts[2].dotLimit = 0;
@@ -713,6 +1014,7 @@ function resetToTitle() {
   stopFrightSound();
   document.getElementById('titleScreen').style.display = '';
   document.getElementById('gameOverScreen').classList.remove('active');
+  konamiSeq = [];
 }
 
 function togglePause() {
@@ -723,7 +1025,35 @@ function togglePause() {
     stopSiren(); stopFrightSound();
   } else {
     document.getElementById('pauseOverlay').classList.remove('active');
+    document.getElementById('pauseFact').style.display = 'none';
   }
+}
+
+// ─── COMBO & 1UP UI ─────────────────────────────────────────
+function showComboText(combo) {
+  const colors = ['#FF0000','#FF8800','#FFEE00','#00FF88','#00CCFF','#FF00FF'];
+  const el = document.createElement('div');
+  el.className = 'combo-text';
+  el.textContent = 'COMBO x' + combo + '!';
+  el.style.color = colors[Math.min(combo - 2, colors.length - 1)];
+  document.getElementById('gameContainer').appendChild(el);
+  setTimeout(() => el.remove(), 1300);
+}
+
+function showOneUpFlash() {
+  const el = document.createElement('div');
+  el.className = 'oneup-flash';
+  el.textContent = '1UP!';
+  document.getElementById('gameContainer').appendChild(el);
+  setTimeout(() => el.remove(), 1600);
+}
+
+function showLevelText(lvl) {
+  const el = document.createElement('div');
+  el.className = 'level-text';
+  el.textContent = 'LEVEL ' + lvl;
+  document.getElementById('gameContainer').appendChild(el);
+  setTimeout(() => el.remove(), 2200);
 }
 
 // ─── PARTICLE SYSTEM ────────────────────────────────────────
@@ -784,14 +1114,12 @@ function movePacman(dt) {
     const nc = wrapCol(col + nd.x);
     const nr = row + nd.y;
     if (!isWall(nc, nr) && !isGhostHouse(nc, nr)) {
-      // Check alignment
       const centerX = col * TILE + TILE/2;
       const centerY = row * TILE + TILE/2;
       const threshold = speed + 2;
       if ((nd.x !== 0 && Math.abs(py - centerY) <= threshold) ||
           (nd.y !== 0 && Math.abs(px - centerX) <= threshold)) {
         pacman.dir = pacman.nextDir;
-        // Snap to center on the perpendicular axis
         if (nd.x !== 0) pacman.y = row * TILE;
         if (nd.y !== 0) pacman.x = col * TILE;
       }
@@ -804,7 +1132,6 @@ function movePacman(dt) {
   
   // Check wall
   if (isWall(nc, nr) || isGhostHouse(nc, nr)) {
-    // Snap to center if moving into wall
     const centerX = col * TILE;
     const centerY = row * TILE;
     if (d.x > 0 && pacman.x > centerX) { pacman.x = centerX; pacman.moving = false; return; }
@@ -837,7 +1164,8 @@ function movePacman(dt) {
       maze[eatRow][eatCol] = E;
       score += 10;
       dotsEaten++;
-      pacman.eatPause = 1/60; // 1 frame pause
+      statsDotsEaten++;
+      pacman.eatPause = 1/60;
       playWaka();
       spawnParticles(eatCol * TILE + TILE/2, eatRow * TILE + TILE/2, '#FFFFFF', 3, 40);
       checkFruit();
@@ -846,6 +1174,7 @@ function movePacman(dt) {
       maze[eatRow][eatCol] = E;
       score += 50;
       dotsEaten++;
+      statsDotsEaten++;
       activateFrightened();
       playPowerEat();
       spawnParticles(eatCol * TILE + TILE/2, eatRow * TILE + TILE/2, '#FFB8FF', 8, 80);
@@ -862,6 +1191,7 @@ function movePacman(dt) {
       stopSiren();
       stopFrightSound();
       playLevelComplete();
+      statsLevelsCompleted++;
     }
     
     // Check fruit
@@ -872,6 +1202,7 @@ function movePacman(dt) {
         const pts = FRUIT_TABLE[fi].pts;
         score += pts;
         fruitActive = false;
+        statsFruitCollected++;
         playFruitEat();
         spawnScorePopup(fruitCol * TILE + TILE/2, fruitRow * TILE + TILE/2, pts);
         spawnParticles(fruitCol * TILE + TILE/2, fruitRow * TILE + TILE/2, FRUIT_TABLE[fi].color, 10, 80);
@@ -891,10 +1222,12 @@ function checkFruit() {
 }
 
 function checkExtraLife() {
-  if (!extraLifeGiven && score >= 10000) {
+  const mod = getDiffMod();
+  if (!extraLifeGiven && score >= mod.extraLifeScore) {
     lives++;
     extraLifeGiven = true;
     playExtraLife();
+    showOneUpFlash();
   }
 }
 
@@ -902,7 +1235,6 @@ function activateFrightened() {
   const mod = getDiffMod();
   let ft = getFrightTime(level) * mod.frightMult;
   if (ft <= 0) {
-    // Just reverse ghosts, no frightened mode
     ghosts.forEach(g => {
       if (g.state === 'active' && !g.inHouse) g.dir = OPPOSITE[g.dir];
     });
@@ -924,28 +1256,24 @@ function activateFrightened() {
 
 // ─── GHOST AI ───────────────────────────────────────────────
 function getGhostTarget(ghost, idx) {
-  if (ghost.mode === 'frightened') return null; // random
+  if (ghost.mode === 'frightened') return null;
   if (ghost.mode === 'scatter') return ghost.scatterTarget;
   
-  // Chase mode targets
   const pc = Math.floor((pacman.x + TILE/2) / TILE);
   const pr = Math.floor((pacman.y + TILE/2) / TILE);
   const pd = DIR[pacman.dir];
   
   switch(idx) {
-    case 0: // Blinky - target pacman directly
-      return {col: pc, row: pr};
-    case 1: { // Pinky - 4 tiles ahead
+    case 0: return {col: pc, row: pr};
+    case 1: {
       let tc = pc + pd.x * 4;
       let tr = pr + pd.y * 4;
-      // Original overflow bug when facing up
       if (pacman.dir === 'up') { tc -= 4; }
       return {col: tc, row: tr};
     }
-    case 2: { // Inky - complex targeting using Blinky
+    case 2: {
       const ahead2c = pc + pd.x * 2;
-      const ahead2r = pr + pd.y * 2 + (pacman.dir === 'up' ? 0 : 0);
-      // Overflow bug for up
+      const ahead2r = pr + pd.y * 2;
       let ac = ahead2c, ar = ahead2r;
       if (pacman.dir === 'up') ac -= 2;
       const blinky = ghosts[0];
@@ -953,7 +1281,7 @@ function getGhostTarget(ghost, idx) {
       const br = Math.floor((blinky.y + TILE/2) / TILE);
       return {col: ac + (ac - bc), row: ar + (ar - br)};
     }
-    case 3: { // Clyde - if far, chase pacman; if close, scatter
+    case 3: {
       const gc = Math.floor((ghost.x + TILE/2) / TILE);
       const gr = Math.floor((ghost.y + TILE/2) / TILE);
       const dist = Math.sqrt((gc-pc)**2 + (gr-pr)**2);
@@ -968,7 +1296,6 @@ function chooseGhostDir(ghost, idx) {
   const gr = Math.floor((ghost.y + TILE/2) / TILE);
   const isEyes = ghost.state === 'eyes';
   
-  // In ghost house, just move toward exit
   if (ghost.inHouse) return;
   
   if (ghost.mode === 'frightened' && !isEyes) {
@@ -992,6 +1319,26 @@ function chooseGhostDir(ghost, idx) {
   const target = isEyes ? {col:14, row:11} : getGhostTarget(ghost, idx);
   if (!target) return;
   
+  // Ghost dumbness: chance to pick a random direction instead of optimal
+  const mod = getDiffMod();
+  if (mod.ghostDumbness > 0 && !isEyes && Math.random() < mod.ghostDumbness) {
+    const available = [];
+    for (const dirName of DIR_ORDER) {
+      if (dirName === OPPOSITE[ghost.dir]) continue;
+      const d = DIR[dirName];
+      const nc = wrapCol(gc + d.x);
+      const nr = gr + d.y;
+      if (dirName === 'up' && !isEyes) {
+        if ((gr === 11 || gr === 23) && (gc === 12 || gc === 15)) continue;
+      }
+      if (canMove(nc, nr, true, isEyes)) available.push(dirName);
+    }
+    if (available.length > 0) {
+      ghost.dir = available[Math.floor(Math.random() * available.length)];
+      return;
+    }
+  }
+  
   let bestDir = ghost.dir;
   let bestDist = Infinity;
   
@@ -1001,7 +1348,6 @@ function chooseGhostDir(ghost, idx) {
     const nc = wrapCol(gc + d.x);
     const nr = gr + d.y;
     
-    // Ghosts can't move up at specific tiles (original restriction)
     if (dirName === 'up' && !isEyes) {
       if ((gr === 11 || gr === 23) && (gc === 12 || gc === 15)) continue;
     }
@@ -1024,14 +1370,11 @@ function moveGhost(ghost, idx, dt) {
   
   // Ghost house behavior
   if (ghost.inHouse) {
-    // Check if ghost should leave
     if (dotsEaten >= ghost.dotLimit) {
-      // Move toward door
       const doorX = 14 * TILE;
       const doorY = 11 * TILE;
       const speed = BASE_SPEED * 0.5 * dt;
       
-      // First center horizontally
       if (Math.abs(ghost.x - doorX) > 2) {
         ghost.x += (ghost.x < doorX ? 1 : -1) * speed;
       } else {
@@ -1047,7 +1390,6 @@ function moveGhost(ghost, idx, dt) {
         }
       }
     } else {
-      // Bounce up and down
       ghost.houseTimer += dt * 3;
       ghost.y = ghost.startRow * TILE + Math.sin(ghost.houseTimer) * 4;
     }
@@ -1057,7 +1399,7 @@ function moveGhost(ghost, idx, dt) {
   // Speed calculation
   let speedFactor;
   if (isEyes) {
-    speedFactor = 2.0; // eyes move fast
+    speedFactor = 2.0;
   } else if (ghost.mode === 'frightened') {
     speedFactor = spd.ghostFright;
   } else {
@@ -1066,7 +1408,6 @@ function moveGhost(ghost, idx, dt) {
       speedFactor = spd.ghostTunnel;
     } else {
       speedFactor = spd.ghost;
-      // Elroy speeds
       if (idx === 0) {
         const thresh = getElroyThresholds(level);
         const remaining = totalDots - dotsEaten;
@@ -1081,7 +1422,7 @@ function moveGhost(ghost, idx, dt) {
     }
   }
   speedFactor *= mod.ghostSpeed;
-  if (isEyes) speedFactor = 2.0; // override for eyes
+  if (isEyes) speedFactor = 2.0;
   
   const speed = BASE_SPEED * speedFactor * dt;
   const d = DIR[ghost.dir];
@@ -1100,7 +1441,6 @@ function moveGhost(ghost, idx, dt) {
   const centerY = gr * TILE;
   
   if (gc !== ghost.col || gr !== ghost.row) {
-    // Snap to center when entering a new tile
     ghost.x = centerX;
     ghost.y = centerY;
     ghost.col = gc;
@@ -1113,7 +1453,7 @@ function moveGhost(ghost, idx, dt) {
       ghost.y = 14 * TILE;
       ghost.x = ghost.startCol * TILE;
       ghost.houseTimer = 0;
-      ghost.dotLimit = 0; // leave immediately
+      ghost.dotLimit = 0;
       ghost.mode = currentMode === 'frightened' ? 'frightened' : currentMode;
       return;
     }
@@ -1126,6 +1466,7 @@ function moveGhost(ghost, idx, dt) {
 function checkCollisions() {
   const px = pacman.x + TILE/2;
   const py = pacman.y + TILE/2;
+  const mod = getDiffMod();
   
   for (let i = 0; i < ghosts.length; i++) {
     const g = ghosts[i];
@@ -1135,12 +1476,14 @@ function checkCollisions() {
     const gy = g.y + TILE/2;
     const dist = Math.sqrt((px-gx)**2 + (py-gy)**2);
     
-    if (dist < TILE * 0.8) {
+    if (dist < TILE * mod.collisionRadius) {
       if (g.mode === 'frightened') {
         // Eat ghost
         g.state = 'eyes';
         g.mode = 'eyes';
         ghostEatCombo++;
+        statsGhostsEaten++;
+        if (ghostEatCombo > statsMaxCombo) statsMaxCombo = ghostEatCombo;
         const pts = 200 * Math.pow(2, ghostEatCombo - 1);
         score += pts;
         playGhostEat();
@@ -1149,6 +1492,11 @@ function checkCollisions() {
         shakeTimer = 0.15;
         shakeIntensity = 4;
         checkExtraLife();
+        
+        // Show combo text for x2 and above
+        if (ghostEatCombo >= 2) {
+          showComboText(ghostEatCombo);
+        }
       } else {
         // Pac-Man dies
         gameState = 'dying';
@@ -1158,6 +1506,9 @@ function checkCollisions() {
         stopSiren();
         stopFrightSound();
         playDeath();
+        // More death particles
+        spawnParticles(px, py, '#FFE000', 20, 120);
+        spawnParticles(px, py, '#FF8800', 10, 80);
       }
     }
   }
@@ -1190,7 +1541,6 @@ function updateModes(dt) {
     modeTimer = 0;
     modeIndex++;
     currentMode = modeIndex % 2 === 0 ? 'scatter' : 'chase';
-    // Reverse all ghosts
     ghosts.forEach(g => {
       if (g.state === 'active' && !g.inHouse) {
         g.dir = OPPOSITE[g.dir];
@@ -1203,6 +1553,34 @@ function updateModes(dt) {
 // ─── UPDATE ─────────────────────────────────────────────────
 function update(dt) {
   if (paused) return;
+  
+  // Animate displayed score toward actual score
+  if (displayScore < score) {
+    const diff = score - displayScore;
+    const step = Math.max(1, Math.ceil(diff * 0.15));
+    displayScore = Math.min(score, displayScore + step);
+  }
+  
+  // Update ambient particles always
+  updateAmbientParticles(dt);
+  
+  // Rainbow hue cycle
+  if (konamiActive) {
+    rainbowHue = (rainbowHue + dt * 180) % 360;
+  }
+  
+  // Frightened screen tint
+  if (currentMode === 'frightened') {
+    frightTintAlpha = Math.min(0.12, frightTintAlpha + dt * 0.5);
+  } else {
+    frightTintAlpha = Math.max(0, frightTintAlpha - dt * 0.8);
+  }
+  
+  // Speed timer
+  if (gameState === 'playing') {
+    speedTimerTotal += dt;
+    speedTimerLevel += dt;
+  }
   
   // Update particles
   for (let i = particles.length - 1; i >= 0; i--) {
@@ -1250,9 +1628,21 @@ function update(dt) {
         lives--;
         if (lives <= 0) {
           gameState = 'gameOver';
-          if (score > highScore) highScore = score;
+          const isNewHigh = score > highScore;
+          if (isNewHigh) highScore = score;
           document.getElementById('goScore').textContent = 'SCORE: ' + score;
           document.getElementById('goHigh').textContent = 'HIGH SCORE: ' + highScore;
+          document.getElementById('goNewHigh').style.display = isNewHigh ? 'block' : 'none';
+          
+          // Stats
+          const timePlayed = ((performance.now() - statsTimeStarted) / 1000);
+          const minutes = Math.floor(timePlayed / 60);
+          const seconds = Math.floor(timePlayed % 60);
+          document.getElementById('goStats').innerHTML = 
+            'Dots: <span>' + statsDotsEaten + '</span> &bull; Ghosts: <span>' + statsGhostsEaten + '</span> &bull; Fruit: <span>' + statsFruitCollected + '</span><br>' +
+            'Levels: <span>' + statsLevelsCompleted + '</span> &bull; Max Combo: <span>x' + statsMaxCombo + '</span><br>' +
+            'Time: <span>' + minutes + 'm ' + seconds + 's</span>';
+          
           document.getElementById('gameOverScreen').classList.add('active');
         } else {
           resetAfterDeath();
@@ -1267,6 +1657,16 @@ function update(dt) {
       levelFlashTimer += dt;
       if (stateTimer <= 0) {
         level++;
+        speedTimerLevel = 0;
+        gameState = 'levelTransition';
+        stateTimer = 2.0;
+        showLevelText(level);
+      }
+      break;
+      
+    case 'levelTransition':
+      stateTimer -= dt;
+      if (stateTimer <= 0) {
         resetLevel();
         gameState = 'ready';
         stateTimer = 2;
@@ -1276,9 +1676,9 @@ function update(dt) {
 }
 
 // ─── RENDERING ──────────────────────────────────────────────
-// Pre-render maze walls to offscreen canvas for performance
 let mazeCanvas = null;
 let mazeNeedsRedraw = true;
+let lastMazeThemeLevel = -1;
 
 function buildMazeCanvas() {
   mazeCanvas = document.createElement('canvas');
@@ -1287,6 +1687,7 @@ function buildMazeCanvas() {
   const mc = mazeCanvas.getContext('2d');
   drawMazeWalls(mc);
   mazeNeedsRedraw = false;
+  lastMazeThemeLevel = level;
 }
 
 function isNonWall(r, c) {
@@ -1296,6 +1697,7 @@ function isNonWall(r, c) {
 
 function drawMazeWalls(mc) {
   mc.clearRect(0, 0, COLS * TILE, ROWS * TILE);
+  const theme = getMazeTheme(level);
   
   // First pass: subtle wall fill for depth
   for (let r = 0; r < ROWS; r++) {
@@ -1303,7 +1705,7 @@ function drawMazeWalls(mc) {
       if (maze[r][c] !== W) continue;
       const x = c * TILE;
       const y = r * TILE;
-      mc.fillStyle = 'rgba(0,20,60,0.35)';
+      mc.fillStyle = theme.wallFill;
       mc.fillRect(x, y, TILE, TILE);
     }
   }
@@ -1322,12 +1724,11 @@ function drawMazeWalls(mc) {
     }
   }
   
-  // Build connected wall edge segments for smoother neon lines
-  // Horizontal edges
-  mc.strokeStyle = '#1a7aff';
+  // Build wall edges with theme colors
+  mc.strokeStyle = theme.primary;
   mc.lineWidth = 2.5;
   mc.shadowBlur = 14;
-  mc.shadowColor = '#0066ff';
+  mc.shadowColor = theme.glow;
   mc.lineCap = 'round';
   
   for (let r = 0; r < ROWS; r++) {
@@ -1336,30 +1737,18 @@ function drawMazeWalls(mc) {
       const x = c * TILE;
       const y = r * TILE;
       
-      // Top edge: wall tile with non-wall above (or top border)
-      if (isNonWall(r-1, c)) {
-        mc.beginPath(); mc.moveTo(x, y+1.5); mc.lineTo(x+TILE, y+1.5); mc.stroke();
-      }
-      // Bottom edge
-      if (isNonWall(r+1, c)) {
-        mc.beginPath(); mc.moveTo(x, y+TILE-1.5); mc.lineTo(x+TILE, y+TILE-1.5); mc.stroke();
-      }
-      // Left edge
-      if (isNonWall(r, c-1)) {
-        mc.beginPath(); mc.moveTo(x+1.5, y); mc.lineTo(x+1.5, y+TILE); mc.stroke();
-      }
-      // Right edge
-      if (isNonWall(r, c+1)) {
-        mc.beginPath(); mc.moveTo(x+TILE-1.5, y); mc.lineTo(x+TILE-1.5, y+TILE); mc.stroke();
-      }
+      if (isNonWall(r-1, c)) { mc.beginPath(); mc.moveTo(x, y+1.5); mc.lineTo(x+TILE, y+1.5); mc.stroke(); }
+      if (isNonWall(r+1, c)) { mc.beginPath(); mc.moveTo(x, y+TILE-1.5); mc.lineTo(x+TILE, y+TILE-1.5); mc.stroke(); }
+      if (isNonWall(r, c-1)) { mc.beginPath(); mc.moveTo(x+1.5, y); mc.lineTo(x+1.5, y+TILE); mc.stroke(); }
+      if (isNonWall(r, c+1)) { mc.beginPath(); mc.moveTo(x+TILE-1.5, y); mc.lineTo(x+TILE-1.5, y+TILE); mc.stroke(); }
     }
   }
   
-  // Second glow pass (wider, dimmer) for bloom effect
-  mc.strokeStyle = 'rgba(0,102,255,0.3)';
+  // Second glow pass (wider, dimmer)
+  mc.strokeStyle = theme.dim;
   mc.lineWidth = 6;
   mc.shadowBlur = 20;
-  mc.shadowColor = '#0044cc';
+  mc.shadowColor = theme.shadow;
   
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
@@ -1367,18 +1756,10 @@ function drawMazeWalls(mc) {
       const x = c * TILE;
       const y = r * TILE;
       
-      if (isNonWall(r-1, c)) {
-        mc.beginPath(); mc.moveTo(x, y+1.5); mc.lineTo(x+TILE, y+1.5); mc.stroke();
-      }
-      if (isNonWall(r+1, c)) {
-        mc.beginPath(); mc.moveTo(x, y+TILE-1.5); mc.lineTo(x+TILE, y+TILE-1.5); mc.stroke();
-      }
-      if (isNonWall(r, c-1)) {
-        mc.beginPath(); mc.moveTo(x+1.5, y); mc.lineTo(x+1.5, y+TILE); mc.stroke();
-      }
-      if (isNonWall(r, c+1)) {
-        mc.beginPath(); mc.moveTo(x+TILE-1.5, y); mc.lineTo(x+TILE-1.5, y+TILE); mc.stroke();
-      }
+      if (isNonWall(r-1, c)) { mc.beginPath(); mc.moveTo(x, y+1.5); mc.lineTo(x+TILE, y+1.5); mc.stroke(); }
+      if (isNonWall(r+1, c)) { mc.beginPath(); mc.moveTo(x, y+TILE-1.5); mc.lineTo(x+TILE, y+TILE-1.5); mc.stroke(); }
+      if (isNonWall(r, c-1)) { mc.beginPath(); mc.moveTo(x+1.5, y); mc.lineTo(x+1.5, y+TILE); mc.stroke(); }
+      if (isNonWall(r, c+1)) { mc.beginPath(); mc.moveTo(x+TILE-1.5, y); mc.lineTo(x+TILE-1.5, y+TILE); mc.stroke(); }
     }
   }
   mc.shadowBlur = 0;
@@ -1399,6 +1780,9 @@ function render() {
   ctx.fillStyle = '#0a0a12';
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
   
+  // Draw ambient particles on all screens
+  drawAmbientParticles();
+  
   if (gameState === 'title') return;
   
   // Screen shake
@@ -1413,14 +1797,24 @@ function render() {
   ctx.save();
   ctx.translate(0, MAZE_OFFSET_Y);
   
+  // Level transition screen
+  if (gameState === 'levelTransition') {
+    ctx.fillStyle = '#0a0a12';
+    ctx.fillRect(0, 0, COLS * TILE, ROWS * TILE);
+    ctx.restore();
+    drawHUD();
+    ctx.restore();
+    return;
+  }
+  
   // Level complete flash
   if (gameState === 'levelComplete') {
     const flash = Math.floor(levelFlashTimer * 6) % 2;
+    const theme = getMazeTheme(level);
     if (flash) {
-      // White maze
       drawMazeFlash('#FFFFFF');
     } else {
-      drawMazeFlash('#0066ff');
+      drawMazeFlash(theme.glow);
     }
     drawPacmanSprite();
     ctx.restore();
@@ -1429,8 +1823,8 @@ function render() {
     return;
   }
   
-  // Draw maze
-  if (mazeNeedsRedraw) buildMazeCanvas();
+  // Check if maze theme needs rebuild
+  if (mazeNeedsRedraw || lastMazeThemeLevel !== level) buildMazeCanvas();
   ctx.drawImage(mazeCanvas, 0, 0);
   
   // Draw dots & power pellets
@@ -1455,7 +1849,6 @@ function render() {
         ctx.beginPath();
         ctx.arc(x, y, sz, 0, Math.PI * 2);
         ctx.fill();
-        // Inner bright core
         ctx.shadowBlur = 0;
         ctx.fillStyle = 'rgba(255,255,255,0.9)';
         ctx.beginPath();
@@ -1488,8 +1881,16 @@ function render() {
       const d = DIR[pacman.dir];
       const tx = pacman.x + TILE/2 - d.x * 6;
       const ty = pacman.y + TILE/2 - d.y * 6;
-      if (Math.random() < 0.4) {
-        spawnParticles(tx, ty, 'rgba(255,224,0,0.6)', 1, 20);
+      if (konamiActive) {
+        // Rainbow particle trail for Konami mode
+        if (Math.random() < 0.7) {
+          const hue = (rainbowHue + Math.random() * 60) % 360;
+          spawnParticles(tx, ty, `hsl(${hue},100%,60%)`, 2, 30);
+        }
+      } else {
+        if (Math.random() < 0.4) {
+          spawnParticles(tx, ty, 'rgba(255,224,0,0.6)', 1, 20);
+        }
       }
     }
   }
@@ -1523,6 +1924,16 @@ function render() {
   });
   
   ctx.restore(); // maze offset
+  
+  // Frightened screen tint
+  if (frightTintAlpha > 0) {
+    ctx.save();
+    ctx.globalAlpha = frightTintAlpha;
+    ctx.fillStyle = '#0000AA';
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
   
   // CRT scanline overlay (subtle)
   ctx.save();
@@ -1559,6 +1970,27 @@ function render() {
   }
   
   ctx.restore(); // shake
+  
+  // Update speed timer display
+  if (speedTimerVisible) {
+    const el = document.getElementById('speedTimer');
+    const totalM = Math.floor(speedTimerTotal / 60);
+    const totalS = (speedTimerTotal % 60).toFixed(1);
+    const lvlS = speedTimerLevel.toFixed(1);
+    el.textContent = `TOTAL: ${totalM}:${totalS.padStart(4,'0')}  LV: ${lvlS}s`;
+  }
+}
+
+function drawAmbientParticles() {
+  const theme = gameState === 'title' ? MAZE_THEMES[0] : getMazeTheme(level);
+  ambientParticles.forEach(p => {
+    ctx.globalAlpha = p.alpha;
+    ctx.fillStyle = theme.primary;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  });
 }
 
 function isTemplateNonWall(r, c) {
@@ -1605,9 +2037,17 @@ function drawPacmanSprite() {
   ctx.translate(cx, cy);
   ctx.rotate(angle);
   
-  ctx.fillStyle = '#FFE000';
+  // Color: rainbow if konami, else classic yellow
+  let pacColor = '#FFE000';
+  let glowColor = 'rgba(255,224,0,0.7)';
+  if (konamiActive) {
+    pacColor = `hsl(${rainbowHue},100%,55%)`;
+    glowColor = `hsla(${rainbowHue},100%,55%,0.7)`;
+  }
+  
+  ctx.fillStyle = pacColor;
   ctx.shadowBlur = 12;
-  ctx.shadowColor = 'rgba(255,224,0,0.7)';
+  ctx.shadowColor = glowColor;
   ctx.beginPath();
   ctx.moveTo(0, 0);
   ctx.arc(0, 0, r, mouth, Math.PI * 2 - mouth);
@@ -1650,6 +2090,9 @@ function drawGhost(ghost, idx) {
   const r = TILE/2;
   const isEyes = ghost.state === 'eyes';
   
+  // Breathing / pulsing animation
+  const breathe = 1.0 + 0.04 * Math.sin(performance.now() / 400 + idx * 1.5);
+  
   if (!isEyes) {
     let bodyColor;
     if (ghost.mode === 'frightened') {
@@ -1662,18 +2105,18 @@ function drawGhost(ghost, idx) {
       bodyColor = ghost.color;
     }
     
-    // Ghost body with glow
+    // Ghost body with enhanced glow
     ctx.fillStyle = bodyColor;
-    ctx.shadowBlur = 12;
+    ctx.shadowBlur = 16;
     ctx.shadowColor = bodyColor;
     ctx.beginPath();
-    ctx.arc(cx, cy - 1, r - 1, Math.PI, 0);
+    ctx.arc(cx, cy - 1, (r - 1) * breathe, Math.PI, 0);
     // Wavy bottom with animation
     const wave = performance.now() / 120;
-    const bx = cx + r - 1;
-    const by = cy + r - 2;
+    const bx = cx + (r - 1) * breathe;
+    const by = cy + (r - 2) * breathe;
     const numTeeth = 4;
-    const tw = (r * 2 - 2) / numTeeth;
+    const tw = ((r * 2 - 2) * breathe) / numTeeth;
     ctx.lineTo(bx, by);
     for (let i = 0; i < numTeeth; i++) {
       const tx = bx - i * tw;
@@ -1686,7 +2129,7 @@ function drawGhost(ghost, idx) {
     ctx.shadowBlur = 0;
   }
   
-  // Eyes (always drawn, with glow for eyes-only state)
+  // Eyes
   if (ghost.mode !== 'frightened' || isEyes) {
     const eyeR = 3.2;
     const pupilR = 1.8;
@@ -1698,7 +2141,6 @@ function drawGhost(ghost, idx) {
       ctx.shadowColor = '#FFFFFF';
     }
     
-    // White of eye
     ctx.fillStyle = '#FFF';
     ctx.beginPath();
     ctx.ellipse(cx - 3.5, cy + eyeOffY, eyeR, eyeR + 1.2, 0, 0, Math.PI * 2);
@@ -1707,7 +2149,6 @@ function drawGhost(ghost, idx) {
     ctx.ellipse(cx + 3.5, cy + eyeOffY, eyeR, eyeR + 1.2, 0, 0, Math.PI * 2);
     ctx.fill();
     
-    // Pupils (deep blue)
     ctx.fillStyle = '#2121DE';
     ctx.beginPath();
     ctx.arc(cx - 3.5 + d.x * 2, cy + eyeOffY + d.y * 2, pupilR, 0, Math.PI * 2);
@@ -1720,12 +2161,10 @@ function drawGhost(ghost, idx) {
     // Frightened face
     const isFlash = frightFlashing && Math.floor(performance.now() / 150) % 2;
     ctx.fillStyle = isFlash ? '#FF0000' : '#FFB8FF';
-    // Squiggly eyes
     ctx.beginPath();
     ctx.arc(cx - 3, cy - 2.5, 1.8, 0, Math.PI * 2);
     ctx.arc(cx + 3, cy - 2.5, 1.8, 0, Math.PI * 2);
     ctx.fill();
-    // Wavy mouth
     ctx.strokeStyle = ctx.fillStyle;
     ctx.lineWidth = 1.2;
     ctx.beginPath();
@@ -1746,21 +2185,20 @@ function drawFruit(c, x, y, fruit) {
   c.beginPath();
   c.arc(x, y, 6 * pulse, 0, Math.PI * 2);
   c.fill();
-  // Stem
   c.fillStyle = '#00AA00';
   c.fillRect(x - 1, y - 8, 2, 4);
   c.shadowBlur = 0;
 }
 
 function drawHUD() {
-  // Score - top left
+  // Score - top left (animated)
   ctx.fillStyle = '#FFFFFF';
   ctx.font = "10px 'Press Start 2P', monospace";
   ctx.textAlign = 'left';
   ctx.fillText('SCORE', 8, 16);
   ctx.fillStyle = '#FFE000';
   ctx.font = "12px 'Press Start 2P', monospace";
-  ctx.fillText(score.toString().padStart(6, ' '), 8, 32);
+  ctx.fillText(Math.floor(displayScore).toString().padStart(6, ' '), 8, 32);
   
   // High score - top center
   ctx.fillStyle = '#FFFFFF';
@@ -1803,7 +2241,8 @@ function drawHUD() {
   ctx.fillStyle = '#8888a0';
   ctx.font = "8px 'Press Start 2P', monospace";
   ctx.textAlign = 'center';
-  ctx.fillText(difficulty.toUpperCase(), CANVAS_W / 2, lifeY + 4);
+  const diffLabel = difficulty.toUpperCase() + (konamiActive ? ' ★' : '');
+  ctx.fillText(diffLabel, CANVAS_W / 2, lifeY + 4);
 }
 
 // ─── GAME LOOP ──────────────────────────────────────────────
@@ -1819,6 +2258,8 @@ function gameLoop(timestamp) {
   lastTime = timestamp;
   
   if (gameState === 'title' || gameState === 'gameOver') {
+    // Still update ambient particles on title/gameover
+    updateAmbientParticles(deltaTime / 1000);
     render();
     return;
   }
@@ -1837,6 +2278,7 @@ function init() {
   resetMaze();
   pacman = createPacman();
   ghosts = createGhosts();
+  initAmbientParticles();
   
   // Initial render
   render();
